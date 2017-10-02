@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="example" default="build">
+    <target name="build" depends="test"/>
+
+    <target name="clean" unless="clean.done" description="Cleanup build artifacts">
+        <delete dir="${basedir}/build"/>
+        <delete dir="${basedir}/tools"/>
+        <delete dir="${basedir}/src/autoload.php"/>
+
+        <property name="clean.done" value="true"/>
+    </target>
+
+    <target name="prepare" unless="prepare.done" depends="clean,install-dependencies,generate-autoloader" description="Prepare for build">
+        <property name="prepare.done" value="true"/>
+    </target>
+
+    <target name="install-dependencies" depends="install-php-tools" description="Install dependencies"/>
+
+    <target name="install-php-tools" unless="php-tools-installed" depends="-php-tools-installed" description="Install PHP-based tools using phive">
+        <exec executable="phive" taskname="phive">
+            <arg value="install"/>
+            <arg value="--trust-gpg-keys"/>
+            <arg value="4AA394086372C20A"/>
+        </exec>
+    </target>
+
+    <target name="generate-autoloader" depends="-php-tools-installed" description="Generate autoloader code">
+        <exec executable="${basedir}/tools/phpab" taskname="phpab">
+            <arg value="--output"/>
+            <arg path="src/autoload.php"/>
+            <arg path="src"/>
+        </exec>
+    </target>
+
+    <target name="test" depends="prepare" description="Run test suite">
+        <exec executable="${basedir}/tools/phpunit.phar" failonerror="true" taskname="phpunit"/>
+    </target>
+
+    <target name="-php-tools-installed">
+        <available file="${basedir}/tools" property="php-tools-installed" type="dir"/>
+    </target>
+</project>
+
