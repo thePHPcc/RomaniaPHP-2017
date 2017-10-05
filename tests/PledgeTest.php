@@ -7,13 +7,35 @@ use PHPUnit\Framework\TestCase;
  */
 class PledgeTest extends TestCase {
 
+    /** @var  Pledge */
+    private $pledge;
+
+    /** @var  PledgeLevel */
+    private $pledgeLevel;
+
+    protected function setUp() {
+        $this->pledgeLevel = new PledgeLevel();
+        $this->pledge = new Pledge(
+            $this->pledgeLevel,
+            new Project(new Creator('Creator')),
+            new Pledger('Pledger')
+        );
+    }
+
     public function testCanBeMade() {
-        $pledge = new Pledge();
-        $this->assertInstanceOf(Pledge::class, $pledge);
+        $this->assertInstanceOf(Pledge::class, $this->pledge);
     }
 
     public function testHasPledgeLevel() {
-        $pledge = new Pledge();
-        $this->assertEquals(new PledgeLevel(), $pledge->getLevel());
+        $this->assertSame($this->pledgeLevel, $this->pledge->getLevel());
+    }
+
+    public function testCreatorCannotPledge() {
+        $this->expectException(Exception::class);
+        new Pledge(
+            $this->pledgeLevel,
+            new Project(new Creator('CreatorName')),
+            new Pledger('CreatorName')
+        );
     }
 }
