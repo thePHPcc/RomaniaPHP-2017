@@ -1,0 +1,6 @@
+{
+    "require": {
+        "templado/engine": "^2.1",
+        "slim/slim": "^3.0"
+    }
+}
