@@ -14,7 +14,19 @@
         <property name="prepare.done" value="true"/>
     </target>
 
-    <target name="install-dependencies" depends="install-php-tools" description="Install dependencies"/>
+    <target name="install-dependencies" depends="install-php-dependencies,install-php-tools" description="Install dependencies"/>
+
+    <target name="install-php-dependencies" unless="php-dependencies-installed" depends="-php-dependencies-installed" description="Install PHP dependencies using Composer">
+        <exec executable="composer" taskname="composer">
+            <env key="COMPOSER_DISABLE_XDEBUG_WARN" value="1"/>
+            <arg value="install"/>
+            <arg value="--no-interaction"/>
+            <arg value="--no-progress"/>
+            <arg value="--no-ansi"/>
+            <arg value="--no-suggest"/>
+            <arg value="--optimize-autoloader"/>
+        </exec>
+    </target>
 
     <target name="install-php-tools" unless="php-tools-installed" depends="-php-tools-installed" description="Install PHP-based tools using phive">
         <exec executable="phive" taskname="phive">
@@ -34,6 +46,10 @@
 
     <target name="test" depends="prepare" description="Run test suite">
         <exec executable="${basedir}/tools/phpunit.phar" failonerror="true" taskname="phpunit"/>
+    </target>
+
+    <target name="-php-dependencies-installed">
+        <available file="${basedir}/vendor" property="php-dependencies-installed" type="dir"/>
     </target>
 
     <target name="-php-tools-installed">
